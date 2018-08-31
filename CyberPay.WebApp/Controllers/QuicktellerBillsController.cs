@@ -1,9 +1,6 @@
 ﻿using CyberPay.Cmd.Payload.Quickteller;
 using CyberPay.Cmd.Providers;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
@@ -29,6 +26,15 @@ namespace CyberPay.WebApp.Controllers
             var billers = billProvider.GetBillers();
             ApiResult<List<QuicktellerBiller>> result = new ApiResult<List<QuicktellerBiller>>();
             return Request.CreateResponse(billers);
+        }
+
+        [Route("getbanks")]
+        public HttpResponseMessage GetBankCodes()
+        {
+            var billers = billProvider.GetBankCodes();
+            ApiResult<List<QuickTellerBank>> result = new ApiResult<List<QuickTellerBank>>();
+            result.Data = billers;
+            return Request.CreateResponse(result);
         }
     }
 }

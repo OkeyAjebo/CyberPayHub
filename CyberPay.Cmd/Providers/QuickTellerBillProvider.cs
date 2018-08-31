@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CyberPay.Cmd.Payload.Quickteller;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -6,10 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
-using CyberPay.Cmd.Payload.Quickteller;
-using Newtonsoft.Json;
 
 namespace CyberPay.Cmd.Providers
 {
@@ -42,8 +41,6 @@ namespace CyberPay.Cmd.Providers
             return responseobject;
         }
 
-
-
         public List<QuicktellerBillCategory> GetBillCategories()
         {
             String billresponse = billresponse = SendRequest("", $"{ConfigurationManager.AppSettings["QuicktellerUrl"]}/categorys");
@@ -61,6 +58,24 @@ namespace CyberPay.Cmd.Providers
             }
 
             return responseobject.categories;
+        }
+
+
+        public List<QuickTellerBank> GetBankCodes()
+        {
+            var url = ConfigurationManager.AppSettings["QuicktellerGetBank"];
+            String bankUrl = this.SendRequest("", url);
+
+            var responseobject = JsonConvert.DeserializeObject<QuicktellerServiceJSONResponse>(bankUrl);
+
+            if (responseobject == null)
+            {
+                responseobject = new QuicktellerServiceJSONResponse();
+            }
+
+            var response = responseobject.Banks;
+
+            return response;
         }
 
         public List<QuicktellerBiller> GetBillers()
@@ -148,6 +163,32 @@ namespace CyberPay.Cmd.Providers
 
             return customer;
         }
+
+
+        public BillsPaymentResponseViewModel SendBillPaymentTransaction(string pinData,
+            string secureData, int msisdn, string transactionRef,
+            int cardBin, decimal amount)
+        {
+
+            BillPaymentTransaction paymentTransaction = new BillPaymentTransaction()
+            {
+                Amount = (amount * 100),
+                PinData = pinData,
+                SecureData = secureData,
+                Msisdn = msisdn,//starts with 234
+                TransactionRef = transactionRef,
+                CardBin = cardBin
+            };
+
+            var convertPayment = JsonConvert.SerializeObject(paymentTransaction);
+            var billTransaction = this.SendRequest(convertPayment,
+           $"{ConfigurationManager.AppSettings["QuicktellerUrl"]}/transactions", "POST");
+
+            var responseobject = JsonConvert.DeserializeObject<BillsPaymentResponseViewModel>(billTransaction);
+            return responseobject;
+        }
+
+
 
         public BillsPaymentResponseViewModel SendBillPaymentNotification(string paymentcode,
             string customerUniqueReference, string customerMobile, string customerEmail,

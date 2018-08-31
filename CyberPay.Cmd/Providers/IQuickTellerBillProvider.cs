@@ -1,9 +1,5 @@
 ﻿using CyberPay.Cmd.Payload.Quickteller;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CyberPay.Cmd.Providers
 {
@@ -16,5 +12,11 @@ namespace CyberPay.Cmd.Providers
         QuicktellerCustomerViewModel ValidateCustomer(string paymentCode, string subscriberId);
 
         QuicktellerPaymentItemsViewModel GetBillerById(string billerId);
+
+        List<QuickTellerBank> GetBankCodes();
+
+        BillsPaymentResponseViewModel SendBillPaymentTransaction(string pinData,
+            string secureData, int msisdn, string transactionRef,
+            int cardBin, decimal amount);
     }
 }
